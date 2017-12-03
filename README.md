@@ -32,6 +32,8 @@ In general, all solutions can be invoked in both of the following ways:
 
 Some may additionally support other ways:
 
+* 3 (Spiral Matrix): Pass the input in ARGV.
+
 # Posting schedule and policy
 
 Before I post my day N solution, the day N leaderboard **must** be full.
