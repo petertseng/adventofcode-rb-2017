@@ -34,21 +34,15 @@ def absorb_periods(forbidden_starts)
   forbidden_starts
 end
 
-forbidden_starts = absorb_periods(forbidden_starts(periods))
-
-single_openings, other_periods = forbidden_starts.partition { |p, ds|
-  ds.size == p - 1
-}
-
-# For any periods with only one opening, we can combine them into one big period,
-# and this big period also only has one opening!
-base, period = single_openings.sort_by(&:first).reverse.reduce([0, 1]) { |(b, p1), (p2, ds)|
-  allowed_d = (0...p2).find { |d| !ds.include?(d) }
-  b += p1 until b % p2 == allowed_d
-  [b, p1.lcm(p2)]
-}
-
-puts base.step(by: period).find { |delay|
-  # Now we only need to check all other periods.
-  other_periods.all? { |p, ds| !ds.include?(delay % p) }
-}
+puts absorb_periods(forbidden_starts(periods)).sort_by { |k, v|
+  [k - v.size, -k]
+}.reduce([[0], 1]) { |(bs, p1), (p2, ds)|
+  allowed_ds = (0...p2).to_a - ds
+  [
+    bs.product(allowed_ds).map { |b, allowed_d|
+      b += p1 until b % p2 == allowed_d
+      b
+    },
+    p1.lcm(p2)
+  ]
+}.first.min
