@@ -1,16 +1,14 @@
-require_relative 'lib/search'
+require_relative 'lib/union_find'
 
 neighbours = ARGF.each_line.to_h { |l|
   left, right = l.split('<->')
   [Integer(left), right.split(?,).map(&method(:Integer))]
 }
 
-puts 0.step { |i|
-  break i if neighbours.empty?
+nodes = neighbours.keys
 
-  _, _, seen = Search::bfs(neighbours.keys.first, neighbours, ->(_) { false })
+uf = UnionFind.new(nodes)
+neighbours.each { |k, vs| vs.each { |v| uf.union_sz(k, v) } }
 
-  puts seen.size if seen.include?(0)
-
-  neighbours.delete_if { |k, _| seen.include?(k) }
-}
+puts uf.size(0)
+puts uf.num_sets
