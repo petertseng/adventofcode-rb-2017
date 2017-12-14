@@ -1,8 +1,9 @@
 depths = ARGF.each_line.to_h { |x|
-  x.scan(/\d+/).map(&method(:Integer))
-}.freeze
+  parts = x.split(':').map(&.to_i)
+  {parts[0], parts[1]}
+}
 
-periods = depths.to_h { |k, v| [k, 2 * (v - 1)] }.freeze
+periods = depths.to_h { |k, v| {k, 2 * (v - 1)} }
 
 puts periods.select { |k, v| k % v == 0 }.keys.sum { |k| k * depths[k] }
 
@@ -11,8 +12,8 @@ puts periods.select { |k, v| k % v == 0 }.keys.sum { |k| k * depths[k] }
 # The starting time is NOT congruent to -depth modulo period.
 # We combine all these forbidden times by period.
 def forbidden_starts(periods)
-  periods.group_by(&:last).to_h { |period, depths|
-    [period, depths.map { |depth, _| -depth % period }.sort]
+  periods.group_by(&.last).to_h { |period, depths|
+    {period, depths.map { |depth, _| -depth % period }.sort}
   }
 end
 
@@ -25,9 +26,9 @@ def absorb_periods(forbidden_starts)
   periods.each_with_index { |p1, i|
     expand_into = periods[(i + 1)..-1].select { |x| x % p1 == 0 }
     next if expand_into.empty?
-    forbidden = forbidden_starts.delete(p1)
+    forbidden = forbidden_starts.delete(p1).not_nil!
     expand_into.each { |p2|
-      forbidden_starts[p2] |= (0...p2).select { |p| forbidden.include?(p % p1) }
+      forbidden_starts[p2] |= (0...p2).select { |p| forbidden.includes?(p % p1) }
     }
   }
 
@@ -42,13 +43,15 @@ single_openings, other_periods = forbidden_starts.partition { |p, ds|
 
 # For any periods with only one opening, we can combine them into one big period,
 # and this big period also only has one opening!
-base, period = single_openings.sort_by(&:first).reverse.reduce([0, 1]) { |(b, p1), (p2, ds)|
-  allowed_d = (0...p2).find { |d| !ds.include?(d) }
-  b += p1 until b % p2 == allowed_d
+base, period = single_openings.sort_by(&.first).reverse.reduce([0, 1]) { |(b, p1), (p2, ds)|
+  allowed_d = (0...p2).find { |d| !ds.includes?(d) }
+  until b % p2 == allowed_d
+    b += p1
+  end
   [b, p1.lcm(p2)]
 }
 
 puts base.step(by: period).find { |delay|
   # Now we only need to check all other periods.
-  other_periods.all? { |p, ds| !ds.include?(delay % p) }
+  other_periods.all? { |p, ds| !ds.includes?(delay % p) }
 }
