@@ -6,16 +6,19 @@ module KnotHash
   def twist(lengths, n)
     pos = 0
     skip_size = 0
+    deferred_rotate = 0
 
     n.times.with_object((0..255).to_a) { |_, l|
       lengths.each { |len|
-        l.rotate!(pos)
+        l.rotate!(pos + deferred_rotate)
         l[0, len] = l[0, len].reverse
-        l.rotate!(-pos)
+        # We would rotate by -pos here,
+        # but defer it until the next so we do fewer rotates.
+        deferred_rotate = -pos
         pos += len + skip_size
         skip_size += 1
       }
-    }
+    }.rotate!(deferred_rotate)
   end
 
   def hash(lengths)
