@@ -1,5 +1,5 @@
 require_relative 'lib/knot_hash'
-require_relative 'lib/search'
+require_relative 'lib/union_find'
 
 GRID = 128
 
@@ -19,22 +19,21 @@ grid = (0...GRID).map { |n|
 puts grid.sum { |row| row.count(true) }
 
 DIR = [
-  [-1, 0],
   [1, 0],
-  [0, -1],
   [0, 1],
 ].map(&:freeze).freeze
 
-puts 0.step { |i|
-  break i unless (row = grid.index(&:any?))
-
-  col = grid[row].index(true)
-
-  _, _, seen = Search::bfs([row, col], ->((r, c)) {
-    DIR.map { |dy, dx| [r + dy, c + dx] }.select { |n|
-      n.all? { |nn| nn >= 0 } && grid.dig(*n)
-    }
-  }, ->(_) { false })
-
-  seen.each { |y, x| grid[y][x] = false }
+used = grid.flat_map.with_index { |row, y|
+  row.map.with_index { |cell, x| [y, x] if cell }.compact
 }
+
+uf = UnionFind.new(used)
+
+used.each { |x|
+  r, c = x
+  DIR.map { |dy, dx| [r + dy, c + dx] }.select { |n|
+    n.all? { |nn| nn >= 0 } && grid.dig(*n)
+  }.each { |n| uf.union(x, n) }
+}
+
+puts used.map { |x| uf.find(x) }.uniq.size
