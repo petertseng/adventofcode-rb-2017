@@ -30,7 +30,7 @@ puts 0.step { |i|
 
   col = grid[row].index(true)
 
-  _, seen = Search::bfs([row, col], ->((r, c)) {
+  _, _, seen = Search::bfs([row, col], ->((r, c)) {
     DIR.map { |dy, dx| [r + dy, c + dx] }.select { |n|
       n.all? { |nn| nn >= 0 } && grid.dig(*n)
     }
