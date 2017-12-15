@@ -21,7 +21,7 @@ bench_candidates << def bfs_hash(grid)
 
     col = grid[row].index(true)
 
-    _, seen = Search::bfs([row, col], ->((r, c)) {
+    _, _, seen = Search::bfs([row, col], ->((r, c)) {
       dir.map { |dy, dx| [r + dy, c + dx] }.select { |n|
         n.all? { |nn| nn >= 0 } && grid.dig(*n)
       }
@@ -46,7 +46,7 @@ bench_candidates << def bfs_set(grid)
   0.step { |i|
     return i if starts.empty?
 
-    _, seen = Search::bfs(starts.first, ->((r, c)) {
+    _, _, seen = Search::bfs(starts.first, ->((r, c)) {
       dir.map { |dy, dx| [r + dy, c + dx] }.select { |n|
         n.all? { |nn| nn >= 0 } && grid.dig(*n)
       }

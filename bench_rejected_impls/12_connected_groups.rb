@@ -9,7 +9,7 @@ bench_candidates << def bfs(neighbours)
   0.step { |i|
     return i if neighbours.empty?
 
-    _, seen = Search::bfs(neighbours.keys.first, neighbours, ->(_) { false })
+    _, _, seen = Search::bfs(neighbours.keys.first, neighbours, ->(_) { false })
 
     neighbours.delete_if { |k, _| seen.include?(k) }
   }
