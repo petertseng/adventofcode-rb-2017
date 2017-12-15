@@ -34,6 +34,7 @@ Some may additionally support other ways:
 
 * 3 (Spiral Matrix): Pass the input in ARGV.
 * 14 (Disk Defrag): Pass the input in ARGV.
+* 15 (Dueling Generators): Pass the seeds in ARGV.
 
 # Posting schedule and policy
 
