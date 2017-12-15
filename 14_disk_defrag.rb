@@ -1,3 +1,5 @@
+require 'set'
+
 require_relative 'lib/knot_hash'
 require_relative 'lib/search'
 
@@ -25,16 +27,18 @@ DIR = [
   [0, 1],
 ].map(&:freeze).freeze
 
+starts = Set.new(grid.flat_map.with_index { |row, y|
+  row.map.with_index { |cell, x| [y, x] if cell }.compact
+})
+
 puts 0.step { |i|
-  break i unless (row = grid.index(&:any?))
+  break i if starts.empty?
 
-  col = grid[row].index(true)
-
-  _, _, seen = Search::bfs([row, col], ->((r, c)) {
+  _, _, seen = Search::bfs(starts.first, ->((r, c)) {
     DIR.map { |dy, dx| [r + dy, c + dx] }.select { |n|
       n.all? { |nn| nn >= 0 } && grid.dig(*n)
     }
   }, ->(_) { false })
 
-  seen.each { |y, x| grid[y][x] = false }
+  starts -= seen
 }
