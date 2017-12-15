@@ -1,5 +1,15 @@
 MOD = 2 ** 31 - 1
 
+def gen(v, multiplier)
+  Enumerator.new { |e|
+    loop {
+      v *= multiplier
+      v %= MOD
+      e << v
+    }
+  }
+end
+
 A, B = if ARGV.size >= 2 && ARGV.all? { |arg| arg.match?(/^\d+$/) }
   ARGV
 else
