@@ -1,5 +1,9 @@
 MOD = 2 ** 31 - 1
 
+def gen(v0, multiplier)
+  Enumerator.produce(v0) { |v| v * multiplier % MOD }.lazy
+end
+
 A, B = if ARGV.size >= 2 && ARGV.all? { |arg| arg.match?(/^\d+$/) }
   ARGV
 else
@@ -28,9 +32,11 @@ a = A
 b = B
 c = 0
 
+nums = gen(A, AM).zip(gen(B, BM))
+nums.next
+
 40_000_000.times {
-  a = a * AM % MOD
-  b = b * BM % MOD
+  a, b = nums.next
   c += 1 if a & 0xffff == b & 0xffff
 }
 puts c
