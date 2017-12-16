@@ -8,6 +8,18 @@ end.map(&method(:Integer))
 AM = 16807
 BM = 48271
 
+c_lib = File.join(__dir__, 'c', 'lib15.so')
+if File.exist?(c_lib)
+  require 'fiddle'
+
+  lib = Fiddle.dlopen(c_lib)
+  ['part1', 'part2'].map { |f| Fiddle::Function.new(
+    lib[f], [Fiddle::TYPE_LONG_LONG] * 2, Fiddle::TYPE_LONG_LONG,
+  )}.each { |f| puts f.call(A, B) }
+
+  exit 0
+end
+
 # Unfortunately, I will have to use c = 0, c += 1, puts c
 # rather than puts N.times.count {},
 # it brings from 10.5 seconds to 9.5.
