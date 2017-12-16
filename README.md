@@ -18,7 +18,7 @@ The solutions are written with the following goals, with the most important goal
    Especially prefer not to duplicate code.
    This helps keeps solutions readable too.
 
-All solutions are written in Ruby.
+All solutions are written in Ruby (with some particularly slow sections also written in C).
 Features from 2.4.x will be used, with no regard for compatibility with past versions.
 Travis CI verifies that everything continues to work with 2.4.x.
 It additionally shows which problems do and do not work with 2.3.x.
