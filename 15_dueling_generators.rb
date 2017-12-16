@@ -28,7 +28,38 @@ a = A
 b = B
 c = 0
 
-40_000_000.times {
+5_000_000.times {
+  # And in a desperate bid to cut runtime,
+  # we are doing loop unrolling, very sad.
+  # Since this is the single day that takes the longest time,
+  # it is unfortunately necessary.
+  # 1x: 9.5 seconds
+  # 2x: 9.2 seconds
+  # 4x: 8.7 seconds
+  # 8x: 8.4 seconds
+  # 16x: 8.4 seconds
+  # So we stay with 8x.
+  a = a * AM % MOD
+  b = b * BM % MOD
+  c += 1 if a & 0xffff == b & 0xffff
+  a = a * AM % MOD
+  b = b * BM % MOD
+  c += 1 if a & 0xffff == b & 0xffff
+  a = a * AM % MOD
+  b = b * BM % MOD
+  c += 1 if a & 0xffff == b & 0xffff
+  a = a * AM % MOD
+  b = b * BM % MOD
+  c += 1 if a & 0xffff == b & 0xffff
+  a = a * AM % MOD
+  b = b * BM % MOD
+  c += 1 if a & 0xffff == b & 0xffff
+  a = a * AM % MOD
+  b = b * BM % MOD
+  c += 1 if a & 0xffff == b & 0xffff
+  a = a * AM % MOD
+  b = b * BM % MOD
+  c += 1 if a & 0xffff == b & 0xffff
   a = a * AM % MOD
   b = b * BM % MOD
   c += 1 if a & 0xffff == b & 0xffff
@@ -40,6 +71,7 @@ b = B
 c = 0
 
 5_000_000.times {
+  # Loop unrolling here doesn't seem to help much.
   a = a * AM % MOD
   a = a * AM % MOD until a % 4 == 0
   b = b * BM % MOD
