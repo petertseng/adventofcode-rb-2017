@@ -1,11 +1,13 @@
 def parse_input(input)
-  input.each("\n\n", chomp: true).to_h { |state|
+  input.each("\n\n", chomp: true).map.with_index { |state, i|
     lines = state.lines
     parsing_state = parse_state(lines.shift)
-    [parsing_state, 2.times.map { |i|
+    # Assume input comes in order.
+    raise "parsing #{parsing_state}, wanted #{states.size}" if parsing_state != i
+    2.times.map { |i|
       # Assume input comes in order.
       parse_rule(i, lines.shift(4))
-    }.freeze]
+    }.freeze
   }.freeze
 end
 
@@ -24,7 +26,7 @@ def parse_rule(expect, input)
 end
 
 def parse_state(line)
-  line.chomp[-2].to_sym
+  line.chomp[-2].ord - ?A.ord
 end
 
 state = parse_state(ARGF.readline)
