@@ -36,18 +36,52 @@ unless (empty = ARGF.readline).chomp.empty?
 end
 STATES = parse_input(ARGF)
 
+loops = {}
+
+STATES.each_with_index.to_a.combination(2) { |(va, ka), (vb, kb)|
+  [0, 1].each { |bit|
+    write_a, move_a, next_a = va[bit]
+    write_b, move_b, next_b = vb[bit]
+    if move_a == move_b && next_a == kb && next_b == ka
+      write = [write_a, write_b]
+      loops[[ka, bit]] = [write.freeze, move_a, kb].freeze
+      loops[[kb, bit]] = [write.reverse.freeze, move_b, ka].freeze
+    end
+  }
+}
+
 ticker = [0] * (check_after ** 0.5).ceil * 2
 pos = ticker.size / 2
+n = 0
 
-check_after.times {
-  ticker[pos], where_to_go, state = STATES[state][
-    ticker[pos] || 0.tap { ticker.concat([0] * ticker.size) }
-  ]
+while n < check_after
+  current = ticker[pos] || 0.tap { ticker.concat([0] * ticker.size) }
+  if (cycle, move, other = loops[[state, current]])
+    original_pos = pos
+    original_n = n
+    while n < check_after && ticker[pos] == current
+      pos += move
+      if pos == -1
+        pos += ticker.size
+        ticker.unshift(*[0] * ticker.size)
+      end
+      n += 1
+    end
+    dist = n - original_n
+    left = move > 0 ? original_pos : pos + 1
+    writes = cycle.cycle.take(dist)
+    writes.reverse! if move < 0
+    state = other if dist.odd?
+    ticker[left, dist] = writes
+    next
+  end
+  ticker[pos], where_to_go, state = STATES[state][current]
   pos += where_to_go
   if pos < 0
     pos += ticker.size
     ticker.unshift(*[0] * ticker.size)
   end
-}
+  n += 1
+end
 
 puts ticker.sum
