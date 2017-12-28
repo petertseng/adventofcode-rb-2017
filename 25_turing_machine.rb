@@ -40,18 +40,44 @@ state = parse_state(input.shift)
 check_after = Integer(input.shift[/\d+/])
 STATES = parse_input(input)
 
-ticker = [0] * (check_after ** 0.5).ceil * 2
-pos = ticker.size / 2
+# I'll not use the entire word; in Ruby 2.3 1 << 62 is Bignum.
+BLOCK_SIZE = 0.size * 8 - 3
+
+ticker = [0] * ((check_after ** 0.5).ceil * 2 / BLOCK_SIZE)
+
+pos = ticker.size * BLOCK_SIZE / 2
+block_i, block_pos = pos.divmod(BLOCK_SIZE)
+block = 0
 
 check_after.times {
-  ticker[pos], where_to_go, state = STATES[state][
-    ticker[pos] || 0.tap { ticker.concat([0] * ticker.size) }
-  ]
-  pos += where_to_go
-  if pos < 0
-    pos += ticker.size
-    ticker.unshift(*[0] * ticker.size)
+  bit = 1 << block_pos
+
+  write, where_to_go, state = STATES[state][block[block_pos]]
+  if write == 0
+    block &= ~bit
+  else
+    block |= bit
+  end
+
+  block_pos += where_to_go
+  if block_pos < 0
+    ticker[block_i] = block
+    block_pos += BLOCK_SIZE
+    block_i -= 1
+    if block_i == -1
+      block_i += ticker.size
+      ticker.unshift(*[0] * ticker.size)
+    end
+    block = ticker[block_i]
+  elsif block_pos == BLOCK_SIZE
+    ticker[block_i] = block
+    block_pos = 0
+    block_i += 1
+    ticker.concat([0] * ticker.size) if block_i == ticker.size
+    block = ticker[block_i]
   end
 }
 
-puts ticker.sum
+ticker[block_i] = block
+
+puts ticker.sum { |x| x.digits(2).count(1) }
