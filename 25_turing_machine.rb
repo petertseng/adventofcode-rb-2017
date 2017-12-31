@@ -42,7 +42,7 @@ pos = ticker.size / 2
 check_after.times {
   ticker[pos], where_to_go, state = STATES[state][ticker[pos]]
   pos += where_to_go
-  if pos == -1
+  if pos < 0
     pos += ticker.size
     ticker.unshift(*[0] * ticker.size)
   elsif pos == ticker.size
