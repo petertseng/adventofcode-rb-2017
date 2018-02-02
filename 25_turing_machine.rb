@@ -36,18 +36,59 @@ unless (empty = ARGF.readline).chomp.empty?
 end
 STATES = parse_input(ARGF)
 
-ticker = [0] * (check_after ** 0.5).ceil * 2
-pos = ticker.size / 2
+# Experimentally, this gave a good runtime,
+# but didn't investigate to explain why this is good.
+# I suppose performance gets worse at 63 because some numbers become bigints,
+# such as new_bit << block_pos
+BLOCK_SIZE = 62
 
-check_after.times {
-  ticker[pos], where_to_go, state = STATES[state][
-    ticker[pos] || 0.tap { ticker.concat([0] * ticker.size) }
-  ]
+CACHE = {}
+def run_block(left, right, state, steps_left)
+  pos = BLOCK_SIZE
+  steps_taken = 0
+  # Leftmost bit of left doesn't matter.
+  left &= ~1
+  cache_key = [left, right, state].freeze
+  if (cached = CACHE[cache_key]) && cached[-1] <= steps_left
+    return cached
+  end
+
+  while steps_taken < steps_left && (1...(2 * BLOCK_SIZE)).cover?(pos)
+    block_i, block_pos = pos.divmod(BLOCK_SIZE)
+    current_bit = (block_i == 0 ? left : right)[block_pos]
+    new_bit, where_to_go, state = STATES[state][current_bit]
+    if current_bit != new_bit
+      mask = ~(1 << block_pos)
+      if block_i == 0
+        left = (left & mask) | (new_bit << block_pos)
+      else
+        right = (right & mask) | (new_bit << block_pos)
+      end
+    end
+    pos += where_to_go
+    steps_taken += 1
+  end
+  CACHE[cache_key] = [left, right, state, pos == 0 ? -1 : 1, steps_taken].freeze
+end
+
+ticker = [0] * [(check_after ** 0.5) * 4 / BLOCK_SIZE, 2].max
+pos = ticker.size / 2
+steps_left = check_after
+
+while steps_left > 0
+  new_left, new_right, state, where_to_go, steps_taken = run_block(
+    ticker[pos - 1],
+    ticker[pos] || 0.tap { ticker.concat([0] * ticker.size) },
+    state, steps_left,
+  )
+  steps_left -= steps_taken
+  ticker[pos - 1] = (ticker[pos - 1] & 1) | (new_left & ~1)
+  ticker[pos] = new_right
   pos += where_to_go
   if pos < 0
     pos += ticker.size
     ticker.unshift(*[0] * ticker.size)
   end
-}
+end
 
-puts ticker.sum
+puts ticker.sum { |t| t.to_s(2).count(?1) }

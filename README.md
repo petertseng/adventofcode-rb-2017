@@ -66,6 +66,8 @@ Solutions with interesting algorithmic choices:
   A few ideas can be found in the [can it be done more efficiently?](https://www.reddit.com/r/adventofcode/comments/7lunzu/2017_day_24_so_can_it_be_done_more_efficiently/) thread.
   The only one I needed to use was the one that optimises out any `[X, X]` dominoes.
   There are only 6 `[X, X]` dominoes in my input of 57, but this decreases the number of bridges found from 288414 to 21783.
+* 25 (Turing Machine):
+  Pack into blocks of N bits (experimentally determined that 128 is good), and cache what happens every time the head moves N steps away as seen in [askalski's solutions](https://www.reddit.com/r/adventofcode/comments/7q6s80/2017_optimized_solutions_in_c_195_ms_total/).
 
 Solutions notable for good leaderboard-related reasons:
 
