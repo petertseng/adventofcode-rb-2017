@@ -62,6 +62,8 @@ Solutions with interesting algorithmic choices:
   Thus, we can simply keep track of how many of each sub-board there are.
   I believe the enhancement process is linear time, but we start taking quadratic time on exceptionally large numbers of iterations because of repeatedly adding BigNums together.
   As explained in the current [top-rated comment](https://www.reddit.com/r/adventofcode/comments/7l78eb/2017_day_21_solutions/drks1g2/), one would be able to improve on this by using exponentiation by squaring for cycle counts divisible by 3.
+* 22 (Sporifica Virus):
+  Build a lookup table for 2x2 tiles as seen in [askalski's solutions](https://www.reddit.com/r/adventofcode/comments/7q6s80/2017_optimized_solutions_in_c_195_ms_total/).
 * 24 (Dominoes):
   A few ideas can be found in the [can it be done more efficiently?](https://www.reddit.com/r/adventofcode/comments/7lunzu/2017_day_24_so_can_it_be_done_more_efficiently/) thread.
   The only one I needed to use was the one that optimises out any `[X, X]` dominoes.
