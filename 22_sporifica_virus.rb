@@ -107,23 +107,26 @@ def infects(s, n, states)
   # (and because of a 2x2 grid, padding needed is halved)
   pad = Math.log(n, 10).ceil * 25
   g = grid(s, pad, states.index(:clean), states.index(:infected))
+  width = g[0].size
 
   # If (s.size / 2) was even, grid got shifted down.
   # If odd, it did not get shifted down; must subtract 1.
   y = x = g.size / 2 - sub_x
+  pos = y * width + x
   infects = 0
+
+  g.flatten!
 
   # lower (sub_y = 1) always, by construction
   # left (sub_x = 0) if x even, right (sub_x = 1) if x odd
   # direction: up (0)
   cache_key = 1 << 3 | sub_x << 2 | 0
 
-  dy = [-1, 0, 1, 0].freeze
-  dx = [0, 1, 0, -1].freeze
+  dpos = [-width, 1, width, -1].freeze
 
   loop {
-    cache_key = g[y][x] << 4 | cache_key & 0xf
-    steps, infects_to_add, infect_times, g[y][x], cache_key = cache[cache_key]
+    cache_key = g[pos] << 4 | cache_key & 0xf
+    steps, infects_to_add, infect_times, g[pos], cache_key = cache[cache_key]
 
     n -= steps
     if n < 0
@@ -132,8 +135,7 @@ def infects(s, n, states)
     end
 
     infects += infects_to_add
-    y += dy[cache_key & 3]
-    x += dx[cache_key & 3]
+    pos += dpos[cache_key & 3]
   }
 end
 
